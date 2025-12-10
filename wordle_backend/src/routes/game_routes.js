@@ -28,19 +28,10 @@ router.post('/guess',async(req,res) =>{
         return res.status(400).json({error: "No word picked!"});
     }
 
-    const is_same = WordComparer( current_word, guess);
+    const result = WordComparer( current_word, guess);
 
-    if(is_same){
-        return res.json({
-        message : "Bravo!!Correct Guess",
-        your_Guess : guess,
-        actual_word : current_word
-    });
-    }
-
-    return res.json({
-        message : "Wrong guess"
-    })  
+    console.log(result);
+    res.json(result);
 });
 
 export default router;
