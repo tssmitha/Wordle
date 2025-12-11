@@ -1,6 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import authMiddleware from '../middlewares/auth_middleware.js';
 
 const router = express.Router();
 
@@ -17,7 +18,7 @@ const GenerateToken = (userId) => {
 
 
 //Signup Route
-router.post('/signup' , async(req,res) => {
+router.post('/signup' ,async(req,res) => {
     try{
     const { username , email , password} = req.body;
 
@@ -35,8 +36,6 @@ router.post('/signup' , async(req,res) => {
     }
 
     const user = await User.create({username,email,password});
-      console.log(user);
-      console.log("lalala");
 
     const token = GenerateToken(user._id);
 
@@ -80,8 +79,7 @@ router.post("/login" , async (req,res) => {
         return res.status(400).json({error : "wrong password"});
     }
 
-    const token = GenerateToken({userId : user._id});
-    console.log(token);
+    const token = GenerateToken(user._id);
 
     //sanitized user
     const sanitizedUser = {

@@ -1,17 +1,15 @@
 import dotenv from 'dotenv';
-
-dotenv.config();
-
-
 import mongoose from 'mongoose';
 import app from './app.js';
-import gameRoutes from './routes/game_routes.js'
-import authRoutes from './routes/auth.js';
+import gameRoutes from './src/routes/game_routes.js'
+import authRoutes from './src/routes/auth.js';
 
-
+dotenv.config();
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = 'mongodb://127.0.0.1:27017/wordle_2';
+const JWT_SECRET = process.env.JWT_SECRET || 'default_secret_key';
 
+console.log("ENV TEST:", process.env.MONGO_URI);
 console.log("ENV TEST:", process.env.JWT_SECRET);
 
 

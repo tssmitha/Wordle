@@ -1,4 +1,4 @@
-import {Word} from '../models/Word.js';
+import Word from '../models/Word.js';
 
 export async function WordPicker(){
     const count = await Word.countDocuments();

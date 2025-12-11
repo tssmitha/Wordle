@@ -34,4 +34,4 @@ wordSchema.pre('save', function (next) {
     next();
 });
 
-export const Word = mongoose.model("Word", wordSchema);
+export default mongoose.model("Word", wordSchema);
