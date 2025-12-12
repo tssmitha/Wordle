@@ -55,6 +55,13 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    playedWords: [
+  {
+    wordId: mongoose.Schema.Types.ObjectId,
+    status: String, 
+  }
+]
+
   },
   {
     timestamps: true, // adds createdAt and updatedAt

@@ -2,6 +2,7 @@ import {WordPicker, WordComparer} from '../services/word_services.js';
 import express from 'express';
 import authMiddleware from '../middlewares/auth_middleware.js';
 import {startGame} from '../controllers/game_controller.js';
+import {makeGuess} from '../controllers/game_controller.js';
 
 const router = express.Router();
 
@@ -9,6 +10,7 @@ let current_word = "";
 
 
 router.post('/game-start',authMiddleware,startGame);
+router.post('/guess', authMiddleware, makeGuess);
 
 //route to pick word
 router.get('/pick-word', authMiddleware,async (req, res) => {
