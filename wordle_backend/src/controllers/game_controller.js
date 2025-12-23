@@ -1,4 +1,3 @@
-import e from "express";
 import Game from "../models/Game.js";
 import User from "../models/User.js";
 import Word from "../models/Word.js";
@@ -6,12 +5,17 @@ import { WordComparer } from "../services/word_services.js";
 
 export const startGame = async (req, res) => {
   try {
-    const userId = req.user.userId;
-
+    const userId = req.user;
+       console.log("User ID:", userId);
     // Get played words
     const user = await User.findById(userId).select("playedWords");
-    const playedWordIds = user.playedWords.map(pw => pw.wordId);
 
+    if(!user){
+        return res.status(404).json({error: "User not found"});
+    }
+    const playedWordIds = user.playedWords.map(pw => pw.word);
+    
+ 
     console.log("Played word IDs:", playedWordIds);
 
     // Check existing active game
@@ -22,13 +26,12 @@ export const startGame = async (req, res) => {
 
     if (gameExists) {
         console.log("Active game already exists for user:", userId);
-        await Game.deleteOne({ _id: gameExists._id });
       return res.status(400).json({ error: "A game is already in progress" });
     }
 
     // Pick a new, unplayed random word
     const randomWord = await Word.aggregate([
-      { $match: { _id: { $nin: playedWordIds } } },
+      { $match: { word: { $nin: playedWordIds } } },
       { $sample: { size: 1 } }
     ]);
 
@@ -66,24 +69,39 @@ export const startGame = async (req, res) => {
 
 export const makeGuess = async (req, res) => {
     try {
-        const { guess } = req.body;
+        let { guess } = req.body;
         if (!guess) return res.status(400).json({ error: "No guess provided" });
 
-        const game = await Game.findOne({ user: req.user.userId, status: "in-progress" });
+        guess = guess.toLowerCase().trim();
+
+        const validWord = await Word.exists({ word: guess });
+        if (!validWord) return res.status(400).json({ error: "Invalid word guess" });
+
+        const game = await Game.findOne({ user: req.user, status: "in-progress" });
+        console.log("Game found for user:", game);
         if (!game) return res.status(400).json({ error: "No active game found" });
 
         const result = WordComparer(game.word, guess);
         game.attempts.push({ guess, result });
 
-        let nextGame = null;
+        const user = await User.findById(req.user);
 
         if (guess === game.word) {
             game.status = "won";
-            game.score = 1;
+            user.currentLevel = (user.currentLevel || 0) + 1;
+           // store played word
+        if (!user.playedWords.some(pw => pw.word === game.word)) {
+            user.playedWords.push({ word: game.word, status: game.status });
+        }
         } else if (game.attempts.length >= game.maxAttempts) {
             game.status = "lost";
+            // store played word
+        if (!user.playedWords.some(pw => pw.word === game.word)) {
+            user.playedWords.push({ word: game.word, status: game.status });
+        }
         }
 
+        await user.save();
         await game.save();
 
         res.json({

@@ -15,6 +15,10 @@ export function WordComparer(actualWord, userGuess){
     
     const n = actualWord.length;
 
+    if(userGuess.length != 5){
+        throw new Error("Invalid guess length");
+    }
+
     //initialising the result array to grey
     const result = new Array(n).fill('GREY');
 

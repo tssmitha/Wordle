@@ -57,10 +57,17 @@ const userSchema = new mongoose.Schema(
     },
     playedWords: [
   {
-    wordId: mongoose.Schema.Types.ObjectId,
+    word : {
+      type : String,
+      required : true,
+    },
     status: String, 
   }
-]
+],
+currentLevel: {
+      type: Number,
+      default: 1,
+    },
 
   },
   {
